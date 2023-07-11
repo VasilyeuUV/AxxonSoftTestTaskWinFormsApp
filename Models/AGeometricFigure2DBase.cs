@@ -38,7 +38,7 @@ namespace AxxonSoftTestTaskWinFormsApp.Models
         /// <param name="coords"></param>
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
-        private IEnumerable<Point> AddCoordinates(IEnumerable<int> coords)
+        private static IEnumerable<Point> AddCoordinates(IEnumerable<int> coords)
         {
             foreach (var coord in coords.Split(_DIMENSION)) 
             {

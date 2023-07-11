@@ -22,6 +22,10 @@ namespace AxxonSoftTestTaskWinFormsApp.Models
 
         public double S { get; private set; }
 
+        public Color? FillColor { get; private set; }
+
+        public Color? LineColor { get; private set; }
+
         #endregion // ISquareable
 
 

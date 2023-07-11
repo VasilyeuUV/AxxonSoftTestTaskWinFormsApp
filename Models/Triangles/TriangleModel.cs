@@ -7,6 +7,11 @@
     {
         private const int _APEXESCOUNT = 3;                 // - количество вершин фигуры
 
+        // - выршины треугольника, определенные при создании
+        private Point _triangleApexA;
+        private Point _triangleApexB;
+        private Point _triangleApexC;
+
 
         /// <summary>
         /// CTOR
@@ -17,24 +22,48 @@
             if (!CheckValidation()
                 || CheckCollinear()
                 )
-                throw new InvalidDataException("The number of coordinates is wrong");
+                throw new InvalidDataException("At the specified coordinates, the figure cannot be built");
         }
 
 
         /// <summary>
         /// Координаты вершины А треугольника
         /// </summary>
-        public Point A => Coordinates[0];
+        public Point A
+        { 
+            get 
+            {
+                if (_triangleApexA == default)
+                    _triangleApexA = new Point((Size)Coordinates[0]);
+                return _triangleApexA; 
+            }
+        }
 
         /// <summary>
         /// Координаты вершины B треугольника
         /// </summary>
-        public Point B => Coordinates[1];
+        public Point B
+        {
+            get
+            {
+                if (_triangleApexB == default)
+                    _triangleApexB = new Point((Size)Coordinates[1]);
+                return _triangleApexB;
+            }
+        }
 
         /// <summary>
         /// Координаты вершины C треугольника
         /// </summary>
-        public Point C => Coordinates[2];
+        public Point C
+        {
+            get
+            {
+                if (_triangleApexC == default)
+                    _triangleApexC = new Point((Size)Coordinates[2]);
+                return _triangleApexC;
+            }
+        }
 
 
 
@@ -49,8 +78,7 @@
 
         protected override bool CheckCollinear()
         {
-            return Coordinates.Where(p => p.X == A.X).Count() == _APEXESCOUNT
-                   || Coordinates.Where(p => p.Y == A.Y).Count() == _APEXESCOUNT;
+            return S == 0;
         }
 
 
@@ -60,7 +88,5 @@
         }
 
         #endregion // ASquareableGeometricFigureBase
-
-
     }
 }
