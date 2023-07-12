@@ -34,9 +34,11 @@
             pbMain = new PictureBox();
             stsStrip = new StatusStrip();
             panel1 = new Panel();
+            dataGridView1 = new DataGridView();
             menuStrip1.SuspendLayout();
             pnlPaint.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)pbMain).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)dataGridView1).BeginInit();
             SuspendLayout();
             // 
             // menuStrip1
@@ -58,20 +60,18 @@
             // pnlPaint
             // 
             pnlPaint.AutoScroll = true;
-            pnlPaint.BorderStyle = BorderStyle.Fixed3D;
             pnlPaint.Controls.Add(pbMain);
-            pnlPaint.Dock = DockStyle.Fill;
-            pnlPaint.Location = new Point(0, 33);
+            pnlPaint.Location = new Point(12, 33);
             pnlPaint.Name = "pnlPaint";
-            pnlPaint.Size = new Size(800, 417);
+            pnlPaint.Size = new Size(482, 202);
             pnlPaint.TabIndex = 2;
             // 
             // pbMain
             // 
-            pbMain.Dock = DockStyle.Fill;
+            pbMain.Dock = DockStyle.Left;
             pbMain.Location = new Point(0, 0);
             pbMain.Name = "pbMain";
-            pbMain.Size = new Size(796, 413);
+            pbMain.Size = new Size(796, 176);
             pbMain.SizeMode = PictureBoxSizeMode.AutoSize;
             pbMain.TabIndex = 3;
             pbMain.TabStop = false;
@@ -94,11 +94,23 @@
             panel1.Size = new Size(300, 395);
             panel1.TabIndex = 4;
             // 
+            // dataGridView1
+            // 
+            dataGridView1.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            dataGridView1.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            dataGridView1.Location = new Point(12, 241);
+            dataGridView1.Name = "dataGridView1";
+            dataGridView1.RowHeadersWidth = 62;
+            dataGridView1.RowTemplate.Height = 33;
+            dataGridView1.Size = new Size(482, 184);
+            dataGridView1.TabIndex = 5;
+            // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(10F, 25F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(800, 450);
+            Controls.Add(dataGridView1);
             Controls.Add(panel1);
             Controls.Add(stsStrip);
             Controls.Add(pnlPaint);
@@ -113,6 +125,7 @@
             pnlPaint.ResumeLayout(false);
             pnlPaint.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)pbMain).EndInit();
+            ((System.ComponentModel.ISupportInitialize)dataGridView1).EndInit();
             ResumeLayout(false);
             PerformLayout();
         }
@@ -125,5 +138,6 @@
         private PictureBox pbMain;
         private StatusStrip stsStrip;
         private Panel panel1;
+        private DataGridView dataGridView1;
     }
 }

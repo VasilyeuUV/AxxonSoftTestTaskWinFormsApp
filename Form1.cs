@@ -16,7 +16,11 @@ namespace AxxonSoftTestTaskWinFormsApp
 
         public Form1()
         {
-            InitializeComponent();           
+            InitializeComponent();
+
+            this.dataGridView1.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dataGridView1.RowHeadersWidth = 70;
+
         }
 
 
@@ -40,6 +44,8 @@ namespace AxxonSoftTestTaskWinFormsApp
             {
                 triangles.Add(new TriangleModel(item));
             }
+            var orderedTriangles = triangles.OrderByDescending(t => t.S);
+
 
             var maxTriangle = triangles.FirstOrDefault(t => t.S == triangles.Max(t => t.S));
 
@@ -52,7 +58,7 @@ namespace AxxonSoftTestTaskWinFormsApp
 
             var colors = new Color[]
             {
-                Color.Blue, Color.Red, Color.AntiqueWhite, Color.Azure, Color.CadetBlue, Color.DarkSalmon, Color.Yellow, Color.Orange
+                Color.AntiqueWhite, Color.Blue, Color.Red, Color.Yellow, Color.Azure, Color.CadetBlue, Color.DarkSalmon,  Color.Orange
             };
 
 
@@ -63,6 +69,12 @@ namespace AxxonSoftTestTaskWinFormsApp
             var maxAllY = (int)triangles?.Max(p => p.Coordinates.Max(c => c.Y));
 
             bmp = new Bitmap(maxAllX, maxAllY);
+            var pixelFormat = bmp.PixelFormat.ToString();
+            Rectangle rect = new Rectangle(minAllX, minAllY, maxAllX, maxAllY);
+
+
+            var intRectangle = new int[maxAllX * maxAllY];
+            int[,] arr22 = new int[maxAllX, maxAllY];
 
 
             //int[] arr = { 0, 200, 100, 100, 200, 50 };
@@ -75,61 +87,153 @@ namespace AxxonSoftTestTaskWinFormsApp
             using (Graphics g = Graphics.FromImage(bmp))
             {
                 /// Рисование на белом фоне. Делаем заливку белым цветом
-                g.Clear(Color.Transparent);
+                //g.Clear(Color.Transparent);
                 //g.DrawLine(Pens.Black, 10, 10, 40, 40);
 
                 var i = -1;
-                foreach (var triangle in triangles)
+                foreach (var triangle in orderedTriangles)
                 {
+                    g.Clear(Color.Transparent);
+
                     var color = colors[++i];
-                    //g.FillPolygon(new SolidBrush(color), triangle.Coordinates);
-                    g.FillPolygon(new SolidBrush(color), maxTriangle.Coordinates);
+                    g.FillPolygon(new SolidBrush(color), triangle.Coordinates);
+
+
+                    BitmapData bmpData = bmp.LockBits(rect, ImageLockMode.ReadWrite, bmp.PixelFormat);
+                    IntPtr ptr = bmpData.Scan0;
+                    int bytes = Math.Abs(bmpData.Stride) * bmp.Height;
+                    byte[] rgbValues = new byte[bytes];
+                    Marshal.Copy(ptr, rgbValues, 0, bytes);
+                    for (int counter = 0, k = 0; counter < rgbValues.Length; counter += 4, k++)
+                    {
+                        if (
+                            rgbValues[counter] != 0               // blue
+                            || rgbValues[counter + 1] != 0        // green
+                            || rgbValues[counter + 2] != 0        // red
+                            )
+                            ++intRectangle[k];
+                    }
+
+                    Marshal.Copy(rgbValues, 0, ptr, bytes);
+                    bmp.UnlockBits(bmpData);
+
+                    g.FillPolygon(new SolidBrush(color), triangle.Coordinates);
                 }
 
 
             }
+
+            var maxValue = intRectangle.Max();
+
             /// Назначаем наш Bitmap свойству Image
             this.pbMain.Image = bmp;
 
 
-            for (int i = 0; i < bmp.Width; i++)
+            //for (int i = 0; i < bmp.Width; i++)
+            //{
+            //    for (int j = 0; j < bmp.Height; j++)
+            //    {
+            //        Color pixel = bmp.GetPixel(i, j);
+            //    }
+            //}
+
+
+            int m = 0, n = 0;
+            foreach (var item in intRectangle)
             {
-                for (int j = 0; j < bmp.Height; j++)
+                arr22[m, n] = item;
+
+                if (++m >= maxAllX)
                 {
-                    Color pixel = bmp.GetPixel(i, j);
+                    m = 0;
+                    ++n;
                 }
+
             }
 
 
-            var intRectangle = new int[maxAllX * maxAllY];
+            var a = arr22.GetLength(0) - 1;
+            var b = arr22.GetLength(1) - 1;
 
 
-            var pixelFormat = bmp.PixelFormat.ToString();
-            Rectangle rect = new Rectangle(minAllX, minAllY, maxAllX, maxAllY);
-            BitmapData bmpData = bmp.LockBits(rect, ImageLockMode.ReadWrite, bmp.PixelFormat);
-            IntPtr ptr = bmpData.Scan0;
-            int bytes = Math.Abs(bmpData.Stride) * bmp.Height;
-            byte[] rgbValues = new byte[bytes];
-            Marshal.Copy(ptr, rgbValues, 0, bytes);
-            for (int counter = 0, i = 0; counter < rgbValues.Length; counter += 4, i++)
-            {
-                if (
-                    rgbValues[counter] != 0               // blue
-                    || rgbValues[counter + 1] != 0        // green
-                    || rgbValues[counter + 2] != 0        // red
-                    )
-                    ++intRectangle[i];
-            }
 
-            Marshal.Copy(rgbValues, 0, ptr, bytes);
-            bmp.UnlockBits(bmpData);
+            var isIntersection = (from j in Enumerable.Range(1, arr22.GetLength(1) - 2)
+                                  from i in Enumerable.Range(1, arr22.GetLength(0) - 2)
+                                  where Math.Abs(arr22[i, j] - arr22[i - 1, j]) > 1
+                                     || Math.Abs(arr22[i, j] - arr22[i + 1, j]) > 1
+                                     || Math.Abs(arr22[i, j] - arr22[i, j - 1]) > 1
+                                     || Math.Abs(arr22[i, j] - arr22[i, j + 1]) > 1
+                                     || Math.Abs(arr22[i, j] - arr22[i - 1, j - 1]) > 1
+                                     || Math.Abs(arr22[i, j] - arr22[i - 1, j + 1]) > 1
+                                     || Math.Abs(arr22[i, j] - arr22[i + 1, j - 1]) > 1
+                                     || Math.Abs(arr22[i, j] - arr22[i + 1, j + 1]) > 1
+                                  select (i, j))
+                                .FirstOrDefault() == default;
 
 
 
 
 
-            var arr =  BitConverter.ToInt32( ImageToByteArray(bmp));
-            var arr2 =  ImageToByteArray(bmp);
+
+
+            //var pixelFormat = bmp.PixelFormat.ToString();
+            //Rectangle rect = new Rectangle(minAllX, minAllY, maxAllX, maxAllY);
+            //BitmapData bmpData = bmp.LockBits(rect, ImageLockMode.ReadWrite, bmp.PixelFormat);
+            //IntPtr ptr = bmpData.Scan0;
+            //int bytes = Math.Abs(bmpData.Stride) * bmp.Height;
+            //byte[] rgbValues = new byte[bytes];
+            //Marshal.Copy(ptr, rgbValues, 0, bytes);
+            //for (int counter = 0, i = 0; counter < rgbValues.Length; counter += 4, i++)
+            //{
+            //    if (
+            //        rgbValues[counter] != 0               // blue
+            //        || rgbValues[counter + 1] != 0        // green
+            //        || rgbValues[counter + 2] != 0        // red
+            //        )
+            //        ++intRectangle[i];
+            //}
+
+                                 //Marshal.Copy(rgbValues, 0, ptr, bytes);
+                                 //bmp.UnlockBits(bmpData);
+
+
+            var arr = BitConverter.ToInt32(ImageToByteArray(bmp));
+            var arr2 = ImageToByteArray(bmp);
+
+
+            this.dataGridView1.RowCount = maxAllY;
+            this.dataGridView1.ColumnCount = maxAllX;
+
+            foreach (DataGridViewColumn column in this.dataGridView1.Columns)
+                column.Width = 10;
+            foreach (DataGridViewRow row in this.dataGridView1.Rows)
+                row.Height = 10;
+
+
+            for (int i = 0; i < maxAllY; ++i)
+                for (int j = 0; j < maxAllX; ++j)
+                {
+                    this.dataGridView1.Rows[i].Cells[j].Value = arr22[j, i];
+                    this.dataGridView1[j, i].Style.BackColor = colors[arr22[j, i]];
+                }
+
+
+
+            //this.dataGridView1.DataSource = arr22;
+
+
+            //for (int i = 0; i <= maxAllX; i++)
+            //{
+            //    dataGridView1.Columns.Add("column" + i.ToString(), i.ToString());
+            //    dataGridView1.Columns[i].Width = 22;
+            //}
+            //DataGridViewRow row = (DataGridViewRow)dataGridView1.Rows[0].Clone();
+            //for (int i = 0; i <= 40; i++)
+            //{
+            //    row.Cells[i].Value = arr22[0, i];                              // "scores" is an Int32[,] array filled with my data
+            //}
+            //dataGridView1.Rows.Add(row);
+            //dataGridView1.Rows[0].HeaderCell.Value = "Score";
         }
 
 
